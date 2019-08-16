@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<html>
+<!--
+    Ethereal by HTML5 UP
+    html5up.net | @ajlkn
+    Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<!--
+# 商业转载请联系作者获得授权，非商业转载请注明出处。
+# For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source.
+# 协议(License)：署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)
+# 作者(Author)：Mashiro
+# 链接(URL)：https://2heng.xin/2018/06/06/javascript-upload-images-with-imgur-api/
+# 来源(Source)：樱花庄的白猫
+https://disp.cc/b/11-8qWb
+-->
+	<head>
+		<title>LINE Notify 上架系統</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script>
+
+        function auto_save_temp(){
+            //console.log(document.getElementById('message').value);
+            localStorage['img_url'] = document.getElementById('img_url').value;
+            localStorage['line'] = document.getElementById('line').value;
+        }
+
+        function load_temp(){
+            if(typeof localStorage['img_url'] !== 'undefined'){
+                console.log('img_url 未送出的暫存存在');
+                document.getElementById('img_url').value = localStorage['img_url'];
+                document.getElementById('img_view').innerHTML = '<a target="_blank" href="' + localStorage['img_url'] + '"><img src="' + localStorage['img_url'] + ' " style="max-height: 200px; max-width: 200px;" /></a><br><a target="_blank" href="' + localStorage['img_url'] + '">先前上傳成功未送出的圖檔！<br>可點選查看</a>';
+            }else{
+                console.log('img_url 未送出的暫存 不存在');
+            }
+            if(typeof localStorage['line'] !== 'undefined'){
+                console.log('line 未送出的暫存存在');
+                document.getElementById('line').value = localStorage['line'];
+            }else{
+                console.log('line 未送出的暫存 不存在');
+            }
+        }
+
+        function delete_temp(){
+            localStorage.removeItem('img_url');
+            localStorage.removeItem('img_delurl');
+            localStorage.removeItem('line');
+            delete_img();
+        }
+
+            function delete_img(){
+                if(localStorage['img_delurl']!==undefined){
+                    var apiUrl = 'https://api.imgur.com/3/image/' + localStorage['img_delurl'].replace('https://imgur.com/delete/','');
+                    var apiKey = '9a50fd4a95a9bd5';
+                    var settings = {
+                        "async": true,
+                        "crossDomain": true,
+                        "url": apiUrl,
+                        "method": "DELETE",
+                        "datatype": "json",
+                        "headers": {
+                            "Authorization": "Client-ID " + apiKey
+                        },
+                        "processData": false,
+                        "contentType": false,
+                        "data": {
+
+                        },
+                        beforeSend: function () {
+                            //document.getElementById('img_url').value = "圖片上傳中...";
+                            console.log("準備發送刪除圖檔請求...");
+                        },
+                        success: function (res) {
+                            //$('body').append('<img src="' + res.data.link + '" />');
+                            document.getElementById('img_url').value = '';
+                            document.getElementById('img_view').innerHTML = '圖片已刪除';
+                            localStorage['img_url'] = document.getElementById('img_url').value;
+                            // console.log(res.data.link);
+                            // console.log('https://imgur.com/delete/' + res.data.deletehash); 
+                            // localStorage['img_delurl'] = 'https://imgur.com/delete/' + res.data.deletehash;
+                            localStorage.removeItem('img_url');
+                            localStorage.removeItem('img_delurl');
+/*# 商业转载请联系作者获得授权，非商业转载请注明出处。
+# For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source.
+# 协议(License)：署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)
+# 作者(Author)：Mashiro
+# 链接(URL)：https://2heng.xin/2018/06/06/javascript-upload-images-with-imgur-api/
+# 来源(Source)：樱花庄的白猫
+
+https://apidocs.imgur.com/#949d6cb0-5e55-45f7-8853-8c44a108399c
+*/
+                        },
+                        error: function (e) {
+                            alert("刪除失敗，請重試！");
+                        }
+                    }
+                    $.ajax(settings).done(function (res) {
+                        console.log("刪除完成");
+                    });
+                }
+            }
+
+        $("document").ready(function () {
+            load_temp();
+
+            document.getElementById('line').addEventListener("change", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('line').addEventListener("keyup", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('line').addEventListener("click", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('img_url').addEventListener("change", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('img_url').addEventListener("keyup", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('img_url').addEventListener("click", function(){
+                auto_save_temp();
+            });
+
+            document.getElementById('submit').addEventListener("click", function(){
+                delete_temp();
+            });
+
+
+            // document.getElementById('message').addEventListener("keydown", function(){
+            //     save_temp();
+            // });
+
+            // document.getElementById('message').addEventListener("keypress", function(){
+            //     save_temp();
+            // });
+
+            // (typeof localStorage['st'] !== 'undefined') ? console.log('存在'):console.log('不存在');
+
+            $('input[type=file]').on("change", function () {
+                var $files = $(this).get(0).files;
+                var formData = new FormData();
+                formData.append("image", $files[0]);
+                console.log(formData);
+                if ($files.length) {
+                    // Reject big files
+                    if ($files[0].size > $(this).data("max-size") * 1024) {
+                        console.log("Please select a smaller file");
+                        return false;
+                    }
+                    // Replace {{Your Client ID }} with your own API key
+                    var apiUrl = 'https://api.imgur.com/3/image';
+                    var apiKey = '9a50fd4a95a9bd5';
+                    var settings = {
+                        "async": true,
+                        "crossDomain": true,
+                        "url": apiUrl,
+                        "method": "POST",
+                        "datatype": "json",
+                        "headers": {
+                            "Authorization": "Client-ID " + apiKey
+                        },
+                        "processData": false,
+                        "contentType": false,
+                        "data": formData,
+                        beforeSend: function () {
+                            document.getElementById('img_url').value = "圖片上傳中...";
+                            console.log("圖片上傳中...");
+                        },
+                        success: function (res) {
+                            //$('body').append('<img src="' + res.data.link + '" />');
+                            document.getElementById('img_url').value = res.data.link;
+                            document.getElementById('img_view').innerHTML = '<a target="_blank" href="' + res.data.link + '"><img src="' + res.data.link + ' " style="max-height: 200px; max-width: 200px;" /></a><br><a target="_blank" href="' + res.data.link + '">已成功上傳圖檔！可點選查看</a><br>（<a href="javascript:delete_img(\'\')">刪除這張圖片</a>）';
+                            localStorage['img_url'] = document.getElementById('img_url').value;
+                            console.log(res.data.link);
+                            console.log('https://imgur.com/delete/' + res.data.deletehash); 
+                            localStorage['img_delurl'] = 'https://imgur.com/delete/' + res.data.deletehash;
+/*# 商业转载请联系作者获得授权，非商业转载请注明出处。
+# For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source.
+# 协议(License)：署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)
+# 作者(Author)：Mashiro
+# 链接(URL)：https://2heng.xin/2018/06/06/javascript-upload-images-with-imgur-api/
+# 来源(Source)：樱花庄的白猫
+
+https://apidocs.imgur.com/#949d6cb0-5e55-45f7-8853-8c44a108399c
+*/
+                        },
+                        error: function () {
+                            alert("圖片上傳失敗，請重試！");
+                        }
+                    }
+                    $.ajax(settings).done(function (res) {
+                        console.log("圖片上傳完成");
+                    });
+                }
+            });
+        });
+        </script>
+	</head>
+	<body class="is-preload">
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Wrapper -->
+					<div id="wrapper">
+
+						<!-- Panel -->
+							<section class="panel color4-alt">
+								<div class="intro color4">
+									<h2 class="major">LINE Notify</h2>
+									<p>發送 LINE Notify 到.......</p>
+                                    <div id="img_view"></div>
+								</div>
+								<div class="inner columns divided">
+									<div class="span-3-25">
+										<form method="post" action="#">
+											<div class="fields">
+                                                <div class="field">
+                                                    <label for="line">發送訊息（必填）</label>
+                                                    <textarea name="line" id="line" rows="5" required="required"></textarea>
+                                                </div>
+												<div class="field">
+													<label for="img_url">圖片網址（https://） </label>
+													<input type="text" name="img_url" id="img_url" /><br>
+                                                    <!-- <input type="file"  /> -->
+                                                    <input type="file" class="imgur" accept="image/*" data-max-size="5000" />
+												</div>
+											</div>
+											<ul class="actions" style="text-align: center;">
+												<li><input id="submit" type="submit" value="立即發送 LINE Notify 給讀者" class="button primary" style="box-shadow: inset 0 0 0 1px #ffffff;color: #ffffff !important;background-color: #16c464 !important;font-size: 0.9em !important; width: 100%;   height: 4.75em;min-width: 33vw;" /></li>
+											</ul>
+										</form>
+									</div>
+<!-- 									<div class="span-1-5">
+										<ul class="contact-icons color1">
+											<li class="icon fa-twitter"><a href="#">@untitled-tld</a></li>
+											<li class="icon fa-facebook"><a href="#">facebook.com/untitled</a></li>
+											<li class="icon fa-snapchat-ghost"><a href="#">@untitled-tld</a></li>
+											<li class="icon fa-instagram"><a href="#">@untitled-tld</a></li>
+											<li class="icon fa-medium"><a href="#">medium.com/untitled</a></li>
+										</ul>
+									</div> -->
+								</div>
+							</section>
+
+						<!-- Panel -->
+							<!-- <section class="panel color2-alt">
+								<div class="intro color2">
+									<h2 class="major">Elements</h2>
+									<p>Sed vel nibh libero. Mauris et lorem pharetra massa lorem turpis congue pulvinar. Vivamus sed feugiat finibus. Duis amet bibendum amet sed. Duis mauris ex, dapibus sed ligula tempus volutpat magna etiam. </p>
+								</div>
+								<div class="inner columns aligned">
+									<div class="span-2-75">
+
+										<h3 class="major">Text</h3>
+										<p>This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
+										This is <sup>superscript</sup> text and this is <sub>subscript</sub> text.
+										This is <u>underlined</u> and this is code: <code>for (;;) { ... }</code>. Finally, <a href="#">this is a link</a>.</p>
+
+										<h1>Heading Level 1</h1>
+										<h2>Heading Level 2</h2>
+										<h3>Heading Level 3</h3>
+										<h4>Heading Level 4</h4>
+										<h5>Heading Level 5</h5>
+										<h6>Heading Level 6</h6>
+
+									</div>
+								</div>
+							</section> -->
+
+						<!-- Copyright -->
+							<!-- <div class="copyright"><a href="https://ccnda.org">CCNDA.org 社團法人中華基督教網路發展協會</a>.</div> -->
+
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
